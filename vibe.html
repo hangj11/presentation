@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding & AI Creativity: A Deep Dive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- 기본 스타일 및 폰트 설정 --- */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            cursor: none; /* 커서 숨김 */
+        }
+
+        /* --- 동적 배경 효과 --- */
+        #interactive-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* --- 커스텀 커서 --- */
+        .custom-cursor {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(0, 255, 255, 0.7);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+        }
+        
+        .custom-cursor.hover {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 255, 255, 0.1);
+        }
+         .custom-cursor.text-hover {
+            width: 10px;
+            height: 50px;
+            border-radius: 5px;
+            transform: translate(-50%, -50%) rotate(0deg);
+        }
+
+        /* --- 블로그 컨테이너 --- */
+        .blog-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* --- Hero 및 콘텐츠 섹션 (풀스크린 슬라이드 모드) --- */
+        .hero-section, .content-section, .footer-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 0; /* 슬라이드 모드에서는 마진 제거 */
+            padding: 5rem 0;
+        }
+
+        .title-main {
+            font-size: clamp(2.5rem, 7vw, 5.5rem);
+            font-weight: 900;
+            letter-spacing: -2px;
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            animation: text-glow 2s infinite alternate;
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: #a0a0a0;
+            margin-top: 1.5rem;
+            max-width: 600px;
+        }
+
+        .scroll-down-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            animation: bounce 2s infinite;
+        }
+        .scroll-down-indicator svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .content-section, .footer-section {
+            text-align: left;
+            align-items: flex-start;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            position: relative;
+            width: 100%;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            border-radius: 2px;
+        }
+
+        .content-section p, .content-section ul, .content-section blockquote,
+        .footer-section p {
+            font-size: 1.125rem;
+            line-height: 1.8;
+            color: #c0c0c0;
+            margin-bottom: 1.5rem;
+        }
+
+        .content-section .highlight {
+            color: #00ffff;
+            font-weight: 500;
+        }
+        
+        .content-box {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            width: 100%;
+        }
+
+        blockquote {
+            border-left: 4px solid #00ffff;
+            padding-left: 1.5rem;
+            margin-left: 0;
+            font-style: italic;
+            color: #e0e0e0;
+        }
+
+        /* --- 스크롤 애니메이션 --- */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- 사이드 네비게이션 --- */
+        .side-nav {
+            position: fixed;
+            top: 50%;
+            right: 2rem;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            z-index: 1000;
+        }
+        .side-nav a {
+            width: 12px;
+            height: 12px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: background-color 0.3s, transform 0.3s ease-out;
+            position: relative;
+        }
+        .side-nav a:hover {
+            background-color: rgba(0, 255, 255, 0.5);
+            transform: scale(1.2);
+        }
+        .side-nav a.active {
+            background-color: #00ffff;
+            transform: scale(1.5);
+        }
+
+        /* --- 키프레임 애니메이션 --- */
+        @keyframes text-glow {
+            from { text-shadow: 0 0 10px rgba(0, 255, 255, 0.2), 0 0 20px rgba(255, 0, 255, 0.2); }
+            to { text-shadow: 0 0 20px rgba(0, 255, 255, 0.5), 0 0 30px rgba(255, 0, 255, 0.5); }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+            40% { transform: translate(-50%, -15px); }
+            60% { transform: translate(-50%, -7px); }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="interactive-bg"></canvas>
+    <div class="custom-cursor"></div>
+
+    <nav class="side-nav">
+        <a href="#hero" title="Intro"></a>
+        <a href="#sec1" title="Section 1"></a>
+        <a href="#sec2" title="Section 2"></a>
+        <a href="#sec3" title="Section 3"></a>
+        <a href="#sec4" title="Section 4"></a>
+        <a href="#sec5" title="Section 5"></a>
+        <a href="#footer" title="Outro"></a>
+    </nav>
+
+    <main class="blog-container">
+        <header class="hero-section" id="hero">
+            <h1 class="title-main scroll-animate">VIBE CODING & AI CREATIVITY</h1>
+            <p class="subtitle scroll-animate" style="transition-delay: 0.2s;">
+                엄격한 논리보다 '느낌'을, 고독한 작업보다 AI와의 '협업'을. 창작의 패러다임이 바뀌고 있습니다. 직관과 인공지능이 만나 펼쳐지는 새로운 창작의 세계로 당신을 초대합니다.
+            </p>
+            <div class="scroll-down-indicator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+            </div>
+        </header>
+
+        <section class="content-section" id="sec1">
+            <div>
+                <h2 class="section-title scroll-animate">1. '바이브 코딩'의 등장</h2>
+                <p class="scroll-animate">소프트웨어 개발은 전통적으로 철저한 계획과 명세에 기반한 공학의 영역이었습니다. 하지만 기술이 발전하고, 개인의 창의성이 중요해지면서 새로운 흐름이 나타나기 시작했습니다. 바로 '바이브 코딩(Vibe Coding)'입니다.</p>
+                <div class="content-box scroll-animate">
+                    <p><strong>바이브 코딩이란,</strong> 엄격한 계획 대신 <span class="highlight">'느낌'과 '직관'</span>에 따라 아이디어를 빠르게 만들고 발전시키는 개발 방식입니다. 최종 결과물의 '분위기'와 사용자 경험(Vibe)을 먼저 포착하고, 그것을 기술적으로 구현해나가는 예술적 접근에 가깝습니다.</p>
+                </div>
+                <p class="scroll-animate">마치 재즈 연주자가 악보 없이 즉흥 연주를 하듯, 바이브 코더는 머릿속의 추상적인 느낌을 코드로 자유롭게 표현하며 예상치 못한 결과물을 만들어냅니다. 이는 '정답'을 찾아가는 과정이 아닌, '매력'을 창조하는 과정입니다.</p>
+            </div>
+        </section>
+
+        <section class="content-section" id="sec2">
+             <div>
+                <h2 class="section-title scroll-animate">2. 왜 지금, 바이브 코딩인가?</h2>
+                <p class="scroll-animate">이러한 흐름은 우연이 아닙니다. 기술의 발전과 문화적 변화가 맞물리며 바이브 코딩이 자연스럽게 수면 위로 떠올랐습니다.</p>
+                <blockquote class="scroll-animate">
+                    <p>"기술은 인간의 표현력을 확장하는 도구다. 도구가 발전할수록, 우리는 더 직관적이고 자유로운 방식으로 창작할 수 있게 된다."</p>
+                </blockquote>
+                <p class="scroll-animate">개발 도구와 프레임워크의 발전으로 아이디어 구현 속도가 비약적으로 빨라졌습니다. 또한, 개인의 취향과 경험이 중요한 콘텐츠가 넘쳐나는 '크리에이터 이코노미' 시대가 도래하며, 논리적 완결성보다 독창적인 '바이브'가 더 큰 가치를 지니게 되었습니다.</p>
+            </div>
+        </section>
+
+        <section class="content-section" id="sec3">
+             <div>
+                <h2 class="section-title scroll-animate">3. AI, 창의성의 폭발을 이끌다</h2>
+                <p class="scroll-animate">바이브 코딩이 '직관'이라는 엔진을 가졌다면, 생성형 AI는 그 엔진에 주입되는 강력한 '연료'입니다. AI는 바이브 코딩의 불확실성을 줄이고, 창의적 과정을 경이로운 수준으로 가속합니다.</p>
+                <div class="content-box scroll-animate">
+                    <p>AI는 더 이상 단순한 보조 도구가 아닙니다. 아이디어를 제안하고, 코드를 작성하며, 디자인 시안을 만들어내는 <span class="highlight">'창의적 파트너(Creative Partner)'</span>로 진화했습니다.</p>
+                    <ul>
+                        <li class="scroll-animate">💡 <strong class="text-cyan-300">아이디어 증폭:</strong> "사이버펑크 스타일의 날씨 앱"이라는 모호한 아이디어를 입력하면, AI는 수십 가지의 UI 디자인, 아이콘, 컬러 팔레트를 순식간에 제안합니다.</li>
+                        <li class="scroll-animate">🤖 <strong class="text-cyan-300">코드 생성:</strong> "마우스 움직임에 따라 배경이 반응하는 파티클 효과"를 원한다고 말하면, AI는 즉시 실행 가능한 JavaScript 코드를 작성해줍니다.</li>
+                        <li class="scroll-animate">🖼️ <strong class="text-cyan-300">에셋 생성:</strong> "신비로운 숲속 배경 음악"이나 "게임에 필요한 8비트 스타일 아이템 아이콘"도 이제는 AI를 통해 즉시 만들어낼 수 있습니다.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section" id="sec4">
+            <div>
+                <h2 class="section-title scroll-animate">4. 새로운 협업: 인간과 AI의 시너지</h2>
+                <p class="scroll-animate">미래의 창작은 '인간 vs AI'가 아닌 <span class="highlight">'인간 &times; AI'</span>의 형태가 될 것입니다. 이 새로운 협업 모델에서 인간의 역할은 더욱 중요해집니다.</p>
+                 <blockquote class="scroll-animate">
+                    <p>인간은 창의적인 <strong class="highlight">'질문'</strong>을 던지고, 예술적인 <strong class="highlight">'방향'</strong>을 제시하며, 최종 결과물의 <strong class="highlight">'품질'</strong>을 결정합니다. AI는 그 비전을 실현하기 위한 기술과 속도를 제공하는 최고의 조력자입니다.</p>
+                </blockquote>
+                <p class="scroll-animate">따라서 '프롬프트 엔지니어링', 즉 AI의 잠재력을 최대한 이끌어낼 수 있는 질문을 설계하는 능력이 새로운 핵심 역량으로 떠오르고 있습니다. 이는 단순히 명령어를 입력하는 기술을 넘어, 자신의 비전을 명확히 이해하고 AI와 효과적으로 소통하는 능력입니다.</p>
+            </div>
+        </section>
+        
+        <section class="content-section" id="sec5">
+            <div>
+                <h2 class="section-title scroll-animate">5. 잠재적 위험과 나아갈 길</h2>
+                <p class="scroll-animate">물론 이 새로운 창작 방식에는 그림자도 존재합니다. 구조적인 설계 없이 직관에만 의존하면 유지보수가 어려운 코드가 될 수 있으며, AI가 생성한 결과물에 대한 깊은 이해 없이 사용하면 예상치 못한 문제를 낳을 수 있습니다. 또한, 창작 과정의 지나친 자동화는 오히려 창의적 사고를 쇠퇴시킬 수 있다는 우려도 있습니다.</p>
+                 <p class="scroll-animate">따라서 우리는 AI를 '생각 없는 기계'가 아닌, 끊임없이 배우고 영감을 얻을 수 있는 '파트너'로 대해야 합니다. AI가 제안한 결과물을 비판적으로 수용하고, 기본 원리를 학습하려는 노력을 병행할 때, 우리는 기술에 종속되지 않고 기술을 지배하는 진정한 'AI 네이티브 크리에이터'로 거듭날 수 있습니다.</p>
+            </div>
+        </section>
+
+        <footer class="footer-section" id="footer">
+             <div class="text-center">
+                <h2 class="section-title scroll-animate">창작의 미래가 이미 시작되었습니다.</h2>
+                <p class="subtitle scroll-animate">아이디어만 있다면 누구나 세상을 놀라게 할 무언가를 만들 수 있는 시대. 당신은 어떤 '바이브'를 세상에 보여주시겠습니까?</p>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        // --- 모바일 기기 감지 및 최적화 ---
+        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+        if (isMobile) {
+            const cursor = document.querySelector('.custom-cursor');
+            if(cursor) cursor.style.display = 'none';
+            document.body.style.cursor = 'auto';
+        }
+
+        // --- 동적 배경 설정 ---
+        const canvas = document.getElementById('interactive-bg');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = event.clientX;
+            mouse.y = event.clientY;
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles(); // 화면 크기 변경 시 파티클 재배치
+        });
+        
+        class Particle {
+            constructor(x, y, radius, color) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = color;
+                this.baseX = this.x;
+                this.baseY = this.y;
+                this.density = (Math.random() * 30) + 1;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            update() {
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                let forceDirectionX = dx / distance;
+                let forceDirectionY = dy / distance;
+                let maxDistance = 100;
+                let force = (maxDistance - distance) / maxDistance;
+                
+                if (distance < maxDistance) {
+                    this.x -= forceDirectionX * force * this.density * 0.6;
+                    this.y -= forceDirectionY * force * this.density * 0.6;
+                } else {
+                    if (this.x !== this.baseX) {
+                        let dx = this.x - this.baseX;
+                        this.x -= dx / 10;
+                    }
+                    if (this.y !== this.baseY) {
+                        let dy = this.y - this.baseY;
+                        this.y -= dy / 10;
+                    }
+                }
+                this.draw();
+            }
+        }
+
+        let particles = [];
+        function initParticles() {
+            particles = [];
+            // 모바일일 경우 파티클 밀도 감소
+            const particleDensity = isMobile ? 40000 : 20000;
+            const particleCount = Math.floor(canvas.width * canvas.height / particleDensity);
+            const colors = ['rgba(0, 255, 255, 0.5)', 'rgba(255, 0, 255, 0.5)'];
+            for (let i = 0; i < particleCount; i++) {
+                let radius = Math.random() * 1.5 + 0.5;
+                let x = Math.random() * canvas.width;
+                let y = Math.random() * canvas.height;
+                let color = colors[Math.floor(Math.random() * colors.length)];
+                particles.push(new Particle(x, y, radius, color));
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        
+        initParticles();
+        animateParticles();
+
+        if(!isMobile){
+            // --- 커스텀 커서 설정 (모바일 제외) ---
+            const cursor = document.querySelector('.custom-cursor');
+            document.addEventListener('mousemove', e => {
+                cursor.setAttribute('style', `top: ${e.clientY}px; left: ${e.clientX}px;`);
+            });
+
+            document.querySelectorAll('a, button, .section-title').forEach(el => {
+                el.addEventListener('mouseover', () => cursor.classList.add('hover'));
+                el.addEventListener('mouseout', () => cursor.classList.remove('hover'));
+            });
+            document.querySelectorAll('p, h1, h2, li, blockquote').forEach(el => {
+                el.addEventListener('mouseover', () => cursor.classList.add('text-hover'));
+                el.addEventListener('mouseout', () => cursor.classList.remove('text-hover'));
+            });
+        }
+
+
+        // --- 스크롤 애니메이션 및 사이드 네비게이션 활성화 ---
+        const scrollElements = document.querySelectorAll('.scroll-animate');
+        const sections = document.querySelectorAll('header, section, footer');
+        const navLinks = document.querySelectorAll('.side-nav a');
+
+        const elementInView = (el, dividend = 1) => {
+            const elementTop = el.getBoundingClientRect().top;
+            return (
+                elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+            );
+        };
+
+        const handleScroll = () => {
+            // 스크롤에 따른 요소 등장 애니메이션
+            scrollElements.forEach((el) => {
+                if (elementInView(el, 1.25)) {
+                    el.classList.add('visible');
+                }
+            });
+
+            // 현재 보이는 섹션에 맞춰 네비게이션 활성화
+            let currentSection = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.scrollY >= sectionTop - 60) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === currentSection) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        // 초기 로드 및 스크롤 시 실행
+        handleScroll();
+        window.addEventListener('scroll', handleScroll);
+
+    </script>
+</body>
+</html>
+
