@@ -4,23 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vibe Coding & AI Creativity: A Deep Dive</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Local styles replacing external dependencies -->
     <style>
         /* --- 기본 스타일 및 폰트 설정 --- */
         html {
             scroll-behavior: smooth;
         }
         body {
-            font-family: 'Noto Sans KR', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', '맑은 고딕', sans-serif;
             background-color: #0a0a0a;
             color: #e0e0e0;
             margin: 0;
             padding: 0;
             cursor: none; /* 커서 숨김 */
         }
+
+        /* --- Essential utility classes (replacing TailwindCSS) --- */
+        .text-center { text-align: center; }
+        .text-cyan-300 { color: #67e8f9; }
 
         /* --- 동적 배경 효과 --- */
         #interactive-bg {
